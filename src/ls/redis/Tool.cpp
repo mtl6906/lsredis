@@ -1,62 +1,42 @@
-#include "ls/json/Json.h"
 #include "ls/util.h"
 #include "ls/redis/Tool.h"
 
-using std::string;
-using std::unique_ptr;
-using ls::json::String;
-using ls::json::Int;
-using ls::json::Object;
-using sw::redis::ConnectionOptions;
-using sw::redis::ConnectionPoolOptions;
-using sw::redis::Redis;
+#define REDIS_LOG "REDIS_LOG"
+
+using namespace std;
 
 namespace ls
 {
 	namespace redis
 	{
 		Tool *Tool::instance = new Tool();
-
-		Tool::Tool()
+		Tool::Tool() : pool(config)
 		{
-			char *configPath = getenv("REDIS_CONFIG_PATH");
-			if(configPath == NULL)
-				configPath = (char *)"RedisConfig.json";
-			string content;
-			if(ReadFullFile(configPath, content) < 0)
-				exit(1);
-			Object root;
-			root.ParseFrom(content);
-			string host, password;
-			int poolSize, port;
-			GET_STRING(root, "host", host);
-			GET_STRING(root, "password", password);
-			GET_INT(root, "port", port);
-			GET_INT(root, "poolSize", poolSize);
-	
-			ConnectionOptions co;
-			ConnectionPoolOptions cpo;
-
-			co.host = host;
-			co.port = 6379;
-			co.password = password;
-			co.db = 0;
-			co.keep_alive = true;
-
-			cpo.size = poolSize;
-			redis = new Redis(co, cpo);
+			ls_log_tag(REDIS_LOG, "tool create");
 		}
-
 		Tool::~Tool()
 		{
-			 delete redis;
+			
 		}
-
-		Redis *Tool::GetRedis()
+		unique_ptr<Context> Tool::GetContext(const string &cmd)
 		{
-			return redis;
+			return unique_ptr<Context>(new Context(pool, cmd));
 		}
-
+		unique_ptr<Context> Tool::GetContext(initializer_list<string> il)
+		{
+			int len = il.size() + 1;
+			for(auto it : il)
+				len += it.size();
+			string cmd;
+			cmd.reserve(len);
+			for(auto it : il)
+			{
+				cmd.append(it);
+				cmd.append(" ");
+			}
+			cmd.pop_back();
+			return GetContext(cmd);
+		}
 		Tool *Tool::GetInstance()
 		{
 			return instance;

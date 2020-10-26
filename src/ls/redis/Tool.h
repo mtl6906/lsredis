@@ -1,7 +1,10 @@
 #ifndef LS_REDISAPI_TOOL_H
 #define LS_REDISAPI_TOOL_H
 
-#include "sw/redis++/redis.h"
+#include "ls/redis/Context.h"
+#include "ls/redis/RedisConfig.h"
+#include "ls/redis/ConnectionPool.h"
+#include "ls/LockedCache.h"
 
 namespace ls
 {
@@ -10,12 +13,14 @@ namespace ls
 		class Tool
 		{
 			static Tool *instance;
-			sw::redis::Redis *redis;
-			Tool();
+			RedisConfig config;
+			ConnectionPool pool;
 			public:
+				Tool();
 				~Tool();
-				sw::redis::Redis *GetRedis();
 				static Tool *GetInstance();
+				std::unique_ptr<Context> GetContext(const std::string &cmd);
+				std::unique_ptr<Context> GetContext(std::initializer_list<std::string> il);
 		};
 	}
 }

@@ -12,4 +12,4 @@ include_directories(src)
 add_library(lsredis SHARED ${SRC})
 add_executable(testcase ${SRC} ${SRC_SAMPLE})
 
-target_link_libraries(testcase redis++ hiredis lsjson lsutil lsbuffer pthread)
+target_link_libraries(testcase hiredis lsnet lsconfig lsutil lsjson lsbuffer pthread lsorderedmap)
