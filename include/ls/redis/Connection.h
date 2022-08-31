@@ -17,7 +17,7 @@ namespace ls
                 Connection() = default;
                 Connection(const std::string &ip, int port);
                 ~Connection();
-                redisReply* Command(const std::string &cmd);
+                redisReply* command(const std::string &cmd);
         };
     }
 }

@@ -10,7 +10,7 @@ namespace ls
         Connection::Connection(const string &ip, int port) : rc(redisConnect(ip.c_str(), port))
         {
         }
-        redisReply* Connection::Command(const string &cmd)
+        redisReply* Connection::command(const string &cmd)
         {  
             return (redisReply *)redisCommand(rc, cmd.c_str());
         }

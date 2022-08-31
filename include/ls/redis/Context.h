@@ -1,7 +1,8 @@
 #ifndef LS_REDIS_CONTEXT_H
 #define LS_REDIS_CONTEXT_H
 
-#include "ls/redis/ConnectionPool.h"
+#include "ls/Pool.h"
+#include "ls/redis/Connection.h"
 
 namespace ls
 {
@@ -9,14 +10,14 @@ namespace ls
     {
         class Context
         {
-            ConnectionPool &pool;
+            Pool<Connection> &pool;
             Connection *connection;
             std::unique_ptr<redisReply, std::function<void(redisReply *)>> rp;
             public:
-                Context(ConnectionPool &pool, const std::string &cmd);
+                Context(Pool<Connection> &pool, const std::string &cmd);
                 ~Context();
-                std::pair<int, std::string> GetStringReply();
-                std::pair<int, int> GetIntReply();
+		std::string getString(int &ec);
+                int getInt(int &ec);
         };
     }
 }
